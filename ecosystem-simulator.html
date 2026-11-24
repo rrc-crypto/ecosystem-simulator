@@ -1,0 +1,3582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>What Happens If...? — Ecosystem Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2D6A4F;
+      --primary-dark: #1B4332;
+      --primary-light: #52B788;
+      --primary-soft: #D8F3DC;
+      --accent: #E76F51;
+      --accent-warm: #F4A261;
+      --accent-yellow: #E9C46A;
+      --sky: #48CAE4;
+      --sky-light: #E0F7FA;
+      --bg: #F4F9F5;
+      --card-bg: #FFFFFF;
+      --text: #212529;
+      --text-muted: #596570;
+      --border: #DDE7E1;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.06);
+      --shadow-md: 0 6px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 28px rgba(0,0,0,0.12);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+      --font-body: 'Quicksand', -apple-system, sans-serif;
+      --font-display: 'Outfit', sans-serif;
+
+      /* Organism specific colors */
+      --color-grass: #16A34A;
+      --color-mice: #A0522D;
+      --color-deer: #D2691E;
+      --color-rabbit: #0D9488;
+      --color-owl: #7C3AED;
+      --color-fox: #EA580C;
+      --color-wolf: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(135deg, #EFF8F3 0%, #E3F2FD 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Top Banner / Header */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 32px;
+      background: var(--primary-soft);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--primary-light);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-text p {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tts-toggle {
+      background: var(--sky-light);
+      border: 1.5px solid var(--sky);
+      color: #0077B6;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 42px;
+      transition: all 0.2s ease;
+    }
+    .tts-toggle:hover {
+      background: #BEE3F8;
+      transform: translateY(-1px);
+    }
+
+    /* Navigation Progress Bar / Tabs */
+    .nav-container {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stepper {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .step-btn {
+      background: #F8F9FA;
+      border: 2px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 10px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 64px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .step-btn .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #CBD5E1;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .step-btn .step-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .step-btn:hover:not(.locked) {
+      background: #EDF2F7;
+      border-color: #CBD5E1;
+      transform: translateY(-2px);
+    }
+
+    .step-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+    }
+    .step-btn.active .step-number {
+      background: var(--primary);
+      transform: scale(1.1);
+    }
+    .step-btn.active .step-title {
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+
+    .step-btn.completed .step-number {
+      background: var(--primary-light);
+    }
+
+    .step-btn.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+      border-style: dashed;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .tab-view {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .tab-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Common Card Styles */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .section-badge {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+    }
+
+    .helper-text {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Button Styles */
+    .btn {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-accent:hover {
+      background: #D9534F;
+    }
+
+    .btn-secondary {
+      background: #EDF2F7;
+      color: var(--text);
+      border: 1.5px solid #CBD5E1;
+    }
+    .btn-secondary:hover {
+      background: #E2E8F0;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .speak-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #0077B6;
+      padding: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: transform 0.15s ease;
+      vertical-align: middle;
+    }
+    .speak-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* Bottom Nav Bar */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* =========================================================
+       STEP 1: EXPLORE (Food Web Diagram & Info Modal)
+       ========================================================= */
+    .explore-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.1fr;
+      gap: 20px;
+    }
+    @media (max-width: 950px) {
+      .explore-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .foodweb-canvas-card {
+      position: relative;
+      background: radial-gradient(circle at 50% 100%, #E8F5E9 0%, #FFFFFF 85%);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      border: 2px solid var(--border);
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .foodweb-svg {
+      width: 100%;
+      height: 440px;
+      overflow: visible;
+    }
+
+    .foodweb-node {
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .foodweb-node:hover {
+      transform: scale(1.08);
+    }
+
+    .foodweb-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    /* Info Details Card */
+    .info-panel {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .info-empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px 10px;
+    }
+    .info-empty-state .icon {
+      font-size: 44px;
+      margin-bottom: 10px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .organism-detail-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .detail-avatar {
+      font-size: 40px;
+      width: 68px;
+      height: 68px;
+      background: #F0FBF4;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--primary-light);
+    }
+    .detail-name h3 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .role-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .role-producer { background: #D4EDDA; color: #155724; }
+    .role-consumer { background: #FFF3CD; color: #856404; }
+    .role-predator { background: #F8D7DA; color: #721C24; }
+
+    .sentence-card {
+      background: #F8F9FA;
+      border-left: 5px solid var(--primary-light);
+      padding: 12px 14px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .sentence-card p {
+      margin-bottom: 8px;
+    }
+    .sentence-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .quick-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .organism-chip {
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .organism-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-2px);
+    }
+
+    /* =========================================================
+       STEP 2: PREDICT (Hypothesis Builder)
+       ========================================================= */
+    .predict-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .prompt-box {
+      background: linear-gradient(135deg, #E3F2FD, #E8F5E9);
+      border: 2px solid #81C784;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .prompt-icon {
+      font-size: 36px;
+    }
+    .prompt-text h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: #1B5E20;
+    }
+    .prompt-text p {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2E7D32;
+    }
+
+    .choice-group-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .creature-pick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    .pick-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-height: 85px;
+    }
+    .pick-card .icon {
+      font-size: 30px;
+    }
+    .pick-card .name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .pick-card:hover {
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    .pick-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+    }
+
+    .change-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .change-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-height: 80px;
+      transition: all 0.2s ease;
+    }
+    .change-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .change-card.selected {
+      border-color: var(--accent);
+      background: #FFE8E2;
+      color: #C0392B;
+      box-shadow: 0 4px 12px rgba(231, 111, 81, 0.25);
+    }
+
+    /* Prediction Table for other organisms */
+    .predict-table-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-top: 10px;
+    }
+
+    .predict-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      .predict-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+    .predict-row:last-child {
+      border-bottom: none;
+    }
+    .predict-creature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .predict-creature .icon {
+      font-size: 26px;
+    }
+    .predict-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .pred-opt-btn {
+      background: #F8F9FA;
+      border: 2px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      transition: all 0.2s ease;
+    }
+    .pred-opt-btn:hover {
+      background: #EDF2F7;
+      border-color: #CBD5E1;
+    }
+    .pred-opt-btn.active-inc {
+      background: #D4EDDA;
+      border-color: #28A745;
+      color: #155724;
+      font-weight: 800;
+    }
+    .pred-opt-btn.active-dec {
+      background: #F8D7DA;
+      border-color: #DC3545;
+      color: #721C24;
+      font-weight: 800;
+    }
+    .pred-opt-btn.active-same {
+      background: #E2E3E5;
+      border-color: #6C757D;
+      color: #383D41;
+      font-weight: 800;
+    }
+
+    .hypothesis-banner {
+      background: #FEF9C3;
+      border: 2px dashed #CA8A04;
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #854D0E;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    /* =========================================================
+       STEP 3: EXPERIMENT (Sliders & Live Simulation Engine)
+       ========================================================= */
+    .exp-controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      border: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .sim-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sim-clock-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--sky-light);
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--sky);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      color: #0077B6;
+    }
+
+    .speed-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .speed-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid #CBD5E1;
+      background: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .speed-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .preset-notice {
+      background: #EFF6FF;
+      border-left: 4px solid #3B82F6;
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1E40AF;
+    }
+
+    /* Slider Grid */
+    .slider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .slider-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .slider-card:hover {
+      border-color: #94A3B8;
+    }
+    .slider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slider-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .slider-title .icon {
+      font-size: 24px;
+    }
+    .slider-val-badge {
+      background: #F1F5F9;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      font-size: 14px;
+      min-width: 58px;
+      text-align: center;
+      border: 1px solid #CBD5E1;
+    }
+
+    .custom-range {
+      width: 100%;
+      height: 10px;
+      border-radius: 5px;
+      background: #E2E8F0;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .custom-range::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+    }
+
+    .range-marks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94A3B8;
+    }
+
+    .extinct-pill {
+      position: absolute;
+      top: -8px;
+      right: 12px;
+      background: #DC2626;
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.5px;
+      display: none;
+      animation: pulse 1s infinite;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+    }
+    .extinct-pill.visible {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    /* Live Mini Status during experiment */
+    .live-organism-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .live-chip {
+      background: #F8F9FA;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .live-chip .cur-num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 15px;
+      margin-left: auto;
+    }
+
+    /* =========================================================
+       STEP 4: OBSERVE (Graph + Living Animation + Prediction Check)
+       ========================================================= */
+    .observe-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      background: #E8F5E9;
+      padding: 5px;
+      border-radius: var(--radius-pill);
+      width: fit-content;
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .obs-tab-btn {
+      background: transparent;
+      border: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      color: var(--primary-dark);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .obs-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+    }
+    .obs-tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .observe-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* Living Habitat Animation Canvas */
+    .habitat-card {
+      background: linear-gradient(180deg, #BAE6FD 0%, #D9F99D 70%, #86EFAC 100%);
+      border: 2px solid #6EE7B7;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .habitat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+    .habitat-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 16px;
+      color: #065F46;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+    }
+
+    .habitat-stage {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      margin-top: 8px;
+    }
+
+    .organism-sprite {
+      position: absolute;
+      font-size: 26px;
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      user-select: none;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+    }
+
+    .extinct-banner-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(220, 38, 38, 0.95);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 10;
+      animation: bounce 1.5s infinite;
+    }
+    .extinct-banner-overlay.active {
+      display: flex;
+    }
+
+    /* Graph Section */
+    .graph-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .graph-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .graph-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .legend-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: #F8F9FA;
+      border: 1px solid #E2E8F0;
+    }
+    .legend-line {
+      width: 14px;
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 330px;
+    }
+
+    #populationChart {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Prediction Verification Table */
+    .verify-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .verify-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .verify-item {
+      background: #F8F9FA;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .verify-item.matched {
+      background: #F0FDF4;
+      border-color: #86EFAC;
+    }
+    .verify-item.missed {
+      background: #FEF2F2;
+      border-color: #FECACA;
+    }
+
+    .verify-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .verify-info .icon {
+      font-size: 28px;
+    }
+    .verify-names h4 {
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .verify-names p {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .verify-status-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .status-pill {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-correct {
+      background: #DCFCE7;
+      color: #166534;
+    }
+    .status-wrong {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .score-summary-banner {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 2px solid #F59E0B;
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #92400E;
+    }
+
+    /* =========================================================
+       STEP 5: EXPLAIN & REFLECT (Sentence Builder & Export)
+       ========================================================= */
+    .sentence-scaffold-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .sentence-builder-box {
+      background: #F8FAFC;
+      border: 2px dashed #CBD5E1;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 16px 0;
+      line-height: 2.2;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .styled-select {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      padding: 6px 14px;
+      border: 2px solid var(--primary);
+      border-radius: var(--radius-pill);
+      background: white;
+      color: var(--primary-dark);
+      cursor: pointer;
+      margin: 0 4px;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .styled-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.2);
+    }
+
+    .custom-sentence-result {
+      background: #ECFDF5;
+      border-left: 4px solid var(--primary-light);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #065F46;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    /* Free reflection writing area */
+    .reflection-area {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .sentence-starters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .starter-chip {
+      background: #EEF2FF;
+      color: #4338CA;
+      border: 1px solid #C7D2FE;
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .starter-chip:hover {
+      background: #E0E7FF;
+      transform: translateY(-1px);
+    }
+
+    .reflection-textarea {
+      width: 100%;
+      height: 120px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+    }
+    .reflection-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+    }
+
+    /* Student Info & Export actions */
+    .export-section {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .student-name-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .student-name-row label {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--primary-dark);
+    }
+    .student-name-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      outline: none;
+    }
+    .student-name-input:focus {
+      border-color: var(--primary);
+    }
+
+    .export-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1F2937;
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Hidden Canvas for Certificate Generation */
+    #reportCanvas {
+      display: none;
+    }
+
+    /* Print Styles */
+    @media print {
+      header, .nav-container, .bottom-nav, .export-buttons-row, .tts-toggle, .starter-chip {
+        display: none !important;
+      }
+      body {
+        background: white;
+      }
+      .tab-view {
+        display: block !important;
+        page-break-after: always;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-icon">🌱🦉🐇</div>
+        <div class="brand-text">
+          <h1>What Happens If...?</h1>
+          <p>Ecosystem Simulator & English Learning</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <button id="ttsToggleBtn" class="tts-toggle" title="Read text aloud in English">
+          <span>🔊</span> <span>English Audio: ON</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 5-Step Top Tab / Progress Bar -->
+  <div class="nav-container">
+    <nav class="stepper" aria-label="Ecosystem Simulator Progress">
+      <button class="step-btn active" data-step="1" id="stepBtn1">
+        <div class="step-number">1</div>
+        <div class="step-title">1. Explore</div>
+      </button>
+      <button class="step-btn" data-step="2" id="stepBtn2">
+        <div class="step-number">2</div>
+        <div class="step-title">2. Predict</div>
+      </button>
+      <button class="step-btn locked" data-step="3" id="stepBtn3" title="Finish predicting first!">
+        <div class="step-number">3</div>
+        <div class="step-title">3. Experiment</div>
+      </button>
+      <button class="step-btn locked" data-step="4" id="stepBtn4" title="Run the experiment first!">
+        <div class="step-number">4</div>
+        <div class="step-title">4. Observe</div>
+      </button>
+      <button class="step-btn locked" data-step="5" id="stepBtn5">
+        <div class="step-number">5</div>
+        <div class="step-title">5. Reflect</div>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Multi-Step Content -->
+  <main>
+
+    <!-- ==============================================================
+         STEP 1: EXPLORE (Food Web Diagram & Animal Roles)
+         ============================================================== -->
+    <section id="step1View" class="tab-view active">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Step 1: Explore the Food Web</h2>
+            <button class="speak-btn" onclick="speakText('Step 1: Explore the Food Web. Tap on an animal or plant to see who it eats and who eats it.')">🔊</button>
+          </div>
+          <span class="section-badge">🎯 Goal: Learn the Food Chain</span>
+        </div>
+        <p class="helper-text">
+          👉 Tap any living thing below to read its role and hear English sentences!
+        </p>
+
+        <div class="explore-grid">
+          <!-- Left: Interactive Food Web SVG Diagram -->
+          <div class="foodweb-canvas-card">
+            <svg class="foodweb-svg" viewBox="0 0 620 440" id="foodwebSvg">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94A3B8" />
+                </marker>
+                <marker id="arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#E76F51" />
+                </marker>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.15"/>
+                </filter>
+              </defs>
+
+              <!-- Connection Lines (Arrows point from food -> consumer: "gives energy to") -->
+              <!-- Grass -> Mice -->
+              <path id="path-grass-mice" d="M 285 345 C 210 320, 150 270, 125 240" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+              <!-- Grass -> Rabbit -->
+              <path id="path-grass-rabbit" d="M 310 340 L 310 245" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+              <!-- Grass -> Deer -->
+              <path id="path-grass-deer" d="M 335 345 C 410 320, 460 270, 485 240" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+
+              <!-- Mice -> Owl -->
+              <path id="path-mice-owl" d="M 125 185 C 135 145, 145 125, 155 95" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+              <!-- Mice -> Fox -->
+              <path id="path-mice-fox" d="M 140 185 C 190 145, 250 120, 290 85" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+
+              <!-- Rabbit -> Owl -->
+              <path id="path-rabbit-owl" d="M 290 190 C 240 150, 200 120, 185 95" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+              <!-- Rabbit -> Fox -->
+              <path id="path-rabbit-fox" d="M 315 185 L 325 95" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+
+              <!-- Deer -> Wolf -->
+              <path id="path-deer-wolf" d="M 490 185 L 490 95" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+              <!-- Fox -> Wolf -->
+              <path id="path-fox-wolf" d="M 355 65 L 450 65" stroke="#CBD5E1" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+
+              <!-- LEVEL 3: Apex & Secondary Predators (Owl, Fox, Wolf) -->
+              <!-- Owl -->
+              <g class="foodweb-node" id="node-owl" onclick="selectOrganism('owl')">
+                <circle cx="165" cy="65" r="30" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3" filter="url(#glow)"/>
+                <text x="165" y="73" font-size="26" text-anchor="middle">🦉</text>
+                <text x="165" y="112" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#2D3748" text-anchor="middle">Owl</text>
+              </g>
+
+              <!-- Fox -->
+              <g class="foodweb-node" id="node-fox" onclick="selectOrganism('fox')">
+                <circle cx="325" cy="65" r="30" fill="#FFEDD5" stroke="#EA580C" stroke-width="3" filter="url(#glow)"/>
+                <text x="325" y="73" font-size="26" text-anchor="middle">🦊</text>
+                <text x="325" y="112" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#2D3748" text-anchor="middle">Fox</text>
+              </g>
+
+              <!-- Wolf -->
+              <g class="foodweb-node" id="node-wolf" onclick="selectOrganism('wolf')">
+                <circle cx="490" cy="65" r="32" fill="#F1F5F9" stroke="#334155" stroke-width="3" filter="url(#glow)"/>
+                <text x="490" y="74" font-size="28" text-anchor="middle">🐺</text>
+                <text x="490" y="114" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#2D3748" text-anchor="middle">Wolf</text>
+              </g>
+
+              <!-- LEVEL 2: Primary Consumers (Mice, Rabbit, Deer) -->
+              <!-- Mice -->
+              <g class="foodweb-node" id="node-mice" onclick="selectOrganism('mice')">
+                <circle cx="120" cy="210" r="30" fill="#FEF3C7" stroke="#A0522D" stroke-width="3" filter="url(#glow)"/>
+                <text x="120" y="218" font-size="26" text-anchor="middle">🐭</text>
+                <text x="120" y="258" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#2D3748" text-anchor="middle">Mice</text>
+              </g>
+
+              <!-- Rabbit -->
+              <g class="foodweb-node" id="node-rabbit" onclick="selectOrganism('rabbit')">
+                <circle cx="310" cy="210" r="32" fill="#CCFBF1" stroke="#0D9488" stroke-width="3.5" filter="url(#glow)"/>
+                <text x="310" y="219" font-size="28" text-anchor="middle">🐇</text>
+                <text x="310" y="258" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#0F766E" text-anchor="middle">Rabbit</text>
+              </g>
+
+              <!-- Deer -->
+              <g class="foodweb-node" id="node-deer" onclick="selectOrganism('deer')">
+                <circle cx="490" cy="210" r="30" fill="#FED7AA" stroke="#D2691E" stroke-width="3" filter="url(#glow)"/>
+                <text x="490" y="218" font-size="26" text-anchor="middle">🦌</text>
+                <text x="490" y="258" font-family="'Outfit', sans-serif" font-weight="700" font-size="13" fill="#2D3748" text-anchor="middle">Deer</text>
+              </g>
+
+              <!-- LEVEL 1: Producer (Grass) -->
+              <!-- Grass -->
+              <g class="foodweb-node" id="node-grass" onclick="selectOrganism('grass')">
+                <circle cx="310" cy="360" r="36" fill="#DCFCE7" stroke="#16A34A" stroke-width="4" filter="url(#glow)"/>
+                <text x="310" y="370" font-size="34" text-anchor="middle">🌱</text>
+                <text x="310" y="412" font-family="'Outfit', sans-serif" font-weight="800" font-size="14" fill="#15803D" text-anchor="middle">Grass</text>
+              </g>
+            </svg>
+
+            <div class="foodweb-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:#16A34A;"></span> Producer (Grass)</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#0D9488;"></span> Herbivore (Mice, Rabbit, Deer)</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#7C3AED;"></span> Carnivore (Owl, Fox, Wolf)</div>
+              <div class="legend-item">➡️ Arrow = "Eaten by"</div>
+            </div>
+          </div>
+
+          <!-- Right: Organism Info Card -->
+          <div class="info-panel" id="infoPanel">
+            <div id="infoEmptyState" class="info-empty-state">
+              <div class="icon">👆</div>
+              <h3>Choose a Living Thing!</h3>
+              <p>Click any plant or animal to explore who it eats and who eats it.</p>
+              
+              <div class="quick-list">
+                <button class="organism-chip" onclick="selectOrganism('grass')">🌱 Grass</button>
+                <button class="organism-chip" onclick="selectOrganism('mice')">🐭 Mice</button>
+                <button class="organism-chip" onclick="selectOrganism('rabbit')">🐇 Rabbit</button>
+                <button class="organism-chip" onclick="selectOrganism('deer')">🦌 Deer</button>
+                <button class="organism-chip" onclick="selectOrganism('owl')">🦉 Owl</button>
+                <button class="organism-chip" onclick="selectOrganism('fox')">🦊 Fox</button>
+                <button class="organism-chip" onclick="selectOrganism('wolf')">🐺 Wolf</button>
+              </div>
+            </div>
+
+            <div id="infoCardDetails" class="organism-detail-card" style="display:none;">
+              <div class="detail-header">
+                <div class="detail-avatar" id="detailIcon">🌱</div>
+                <div class="detail-name">
+                  <h3 id="detailTitle">Grass</h3>
+                  <span class="role-badge" id="detailRole">Producer</span>
+                </div>
+                <button class="speak-btn" id="detailSpeakAllBtn" title="Listen to all sentences">🔊 Listen</button>
+              </div>
+
+              <div class="sentence-card">
+                <p>
+                  <strong id="sentEatsPrefix">🍽️ Food:</strong> 
+                  <span id="sentEatsText">It makes its own food using sunlight.</span>
+                  <button class="speak-btn" id="speakEatsBtn">🔊</button>
+                </p>
+                <p>
+                  <strong>⚠️ Predator:</strong> 
+                  <span id="sentEatenText">It is eaten by Mice, Rabbits, and Deer.</span>
+                  <button class="speak-btn" id="speakEatenBtn">🔊</button>
+                </p>
+              </div>
+
+              <div class="sentence-card" style="background:#EFF6FF; border-left-color:#3B82F6;">
+                <p>
+                  <strong>💡 Fun Fact:</strong> 
+                  <span id="sentFactText">Grass is the base of this whole ecosystem!</span>
+                  <button class="speak-btn" id="speakFactBtn">🔊</button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div></div>
+          <button class="btn btn-primary" onclick="goToStep(2)">
+            Next: Make Predictions ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==============================================================
+         STEP 2: PREDICT (Hypothesis Builder)
+         ============================================================== -->
+    <section id="step2View" class="tab-view">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Step 2: Make Your Prediction</h2>
+            <button class="speak-btn" onclick="speakText('Step 2: Make your prediction. Choose one living thing to change, then predict what happens to the others.')">🔊</button>
+          </div>
+          <span class="section-badge">🧠 Form a Hypothesis</span>
+        </div>
+
+        <div class="prompt-box">
+          <div class="prompt-icon">💡</div>
+          <div class="prompt-text">
+            <h3>Question: "What happens if one living thing changes?"</h3>
+            <p>Pick one organism to change. Then guess if the other 6 organisms will Increase ⬆️, Decrease ⬇️, or Stay the Same ➡️.</p>
+          </div>
+        </div>
+
+        <div class="predict-flow">
+          <!-- Sub-step A: Choose which organism to change -->
+          <div>
+            <div class="choice-group-title">
+              <span>1️⃣ Which living thing do you want to change?</span>
+            </div>
+            <div class="creature-pick-grid">
+              <div class="pick-card selected" data-organism="grass" onclick="setChosenOrganism('grass')">
+                <span class="icon">🌱</span>
+                <span class="name">Grass</span>
+              </div>
+              <div class="pick-card" data-organism="mice" onclick="setChosenOrganism('mice')">
+                <span class="icon">🐭</span>
+                <span class="name">Mice</span>
+              </div>
+              <div class="pick-card" data-organism="rabbit" onclick="setChosenOrganism('rabbit')">
+                <span class="icon">🐇</span>
+                <span class="name">Rabbit</span>
+              </div>
+              <div class="pick-card" data-organism="deer" onclick="setChosenOrganism('deer')">
+                <span class="icon">🦌</span>
+                <span class="name">Deer</span>
+              </div>
+              <div class="pick-card" data-organism="owl" onclick="setChosenOrganism('owl')">
+                <span class="icon">🦉</span>
+                <span class="name">Owl</span>
+              </div>
+              <div class="pick-card" data-organism="fox" onclick="setChosenOrganism('fox')">
+                <span class="icon">🦊</span>
+                <span class="name">Fox</span>
+              </div>
+              <div class="pick-card" data-organism="wolf" onclick="setChosenOrganism('wolf')">
+                <span class="icon">🐺</span>
+                <span class="name">Wolf</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-step B: How does it change? -->
+          <div>
+            <div class="choice-group-title">
+              <span>2️⃣ How does it change?</span>
+            </div>
+            <div class="change-type-grid">
+              <div class="change-card" data-change="decrease" onclick="setChangeAction('decrease')">
+                <span style="font-size:26px;">⬇️</span>
+                <span>Decrease</span>
+                <span style="font-size:12px; font-weight:600; opacity:0.8;">Fewer</span>
+              </div>
+              <div class="change-card selected" data-change="remove" onclick="setChangeAction('remove')">
+                <span style="font-size:26px;">❌</span>
+                <span>Remove</span>
+                <span style="font-size:12px; font-weight:600; opacity:0.8;">Zero (Extinct)</span>
+              </div>
+              <div class="change-card" data-change="increase" onclick="setChangeAction('increase')">
+                <span style="font-size:26px;">⬆️</span>
+                <span>Increase</span>
+                <span style="font-size:12px; font-weight:600; opacity:0.8;">More</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-step C: Predict the effect on other 6 organisms -->
+          <div class="predict-table-card">
+            <div class="choice-group-title">
+              <span>3️⃣ What will happen to the OTHER living things?</span>
+              <span id="predictProgressBadge" style="font-size:13px; font-weight:700; color:var(--accent); margin-left:auto;">
+                (0 / 6 predicted)
+              </span>
+            </div>
+            <p style="font-size:14px; color:var(--text-muted); font-weight:600; margin-bottom:12px;">
+              Select ⬆️ Increase, ⬇️ Decrease, or ➡️ Stay Same for each one:
+            </p>
+
+            <div id="predictRowsContainer">
+              <!-- Dynamically generated rows for other organisms -->
+            </div>
+
+            <!-- Current Hypothesis sentence preview -->
+            <div class="hypothesis-banner" id="hypothesisBanner">
+              <div>
+                <strong>My Hypothesis:</strong> 
+                <span id="hypothesisText">If Grass is removed, ...</span>
+              </div>
+              <button class="speak-btn" onclick="speakCurrentHypothesis()">🔊</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <button class="btn btn-secondary" onclick="goToStep(1)">
+            ⬅️ Back to Explore
+          </button>
+          <button class="btn btn-primary" id="btnNextToExperiment" onclick="goToStep(3)" disabled>
+            Next: Run Experiment ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==============================================================
+         STEP 3: EXPERIMENT (Sliders, Real-time Controls)
+         ============================================================== -->
+    <section id="step3View" class="tab-view">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Step 3: Test with the Simulator</h2>
+            <button class="speak-btn" onclick="speakText('Step 3: Test with the simulator. Set the population sliders and click start to watch the ecosystem!')">🔊</button>
+          </div>
+          <span class="section-badge">🔬 Live Experiment</span>
+        </div>
+
+        <!-- Preset Notification / Quick Apply Button -->
+        <div class="preset-notice" id="presetNotice">
+          <div>
+            <span style="font-size:18px; margin-right:6px;">🎯</span>
+            <strong>Test Your Prediction:</strong> We set <span id="presetNoticeText">Grass to 0%</span> to test your hypothesis!
+          </div>
+          <button class="btn btn-secondary" style="padding:6px 14px; min-height:36px; font-size:13px;" onclick="resetToHypothesis()">
+            Apply Hypothesis Setup
+          </button>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="exp-controls-bar">
+          <div class="sim-buttons">
+            <button class="btn btn-primary" id="btnStartSim" onclick="toggleSimulation()">
+              ▶ Start Simulation
+            </button>
+            <button class="btn btn-secondary" id="btnResetSim" onclick="resetSimulation()">
+              ↺ Reset
+            </button>
+          </div>
+
+          <div class="sim-clock-card">
+            <span>📅 Time Elapsed:</span>
+            <span id="simMonthCount" style="font-size:16px;">Month 0</span>
+          </div>
+
+          <div class="speed-selector">
+            <span>Speed:</span>
+            <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1x</button>
+            <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2x Fast</button>
+          </div>
+        </div>
+
+        <!-- Population Sliders -->
+        <div class="slider-grid">
+          <!-- Grass -->
+          <div class="slider-card" id="sliderCard-grass">
+            <span class="extinct-pill" id="extinct-grass">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🌱</span>
+                <span>Grass</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-grass">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-grass" min="0" max="200" step="5" value="100" oninput="onSliderChange('grass', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Mice -->
+          <div class="slider-card" id="sliderCard-mice">
+            <span class="extinct-pill" id="extinct-mice">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🐭</span>
+                <span>Mice</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-mice">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-mice" min="0" max="200" step="5" value="100" oninput="onSliderChange('mice', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Rabbit -->
+          <div class="slider-card" id="sliderCard-rabbit">
+            <span class="extinct-pill" id="extinct-rabbit">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🐇</span>
+                <span>Rabbit</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-rabbit">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-rabbit" min="0" max="200" step="5" value="100" oninput="onSliderChange('rabbit', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Deer -->
+          <div class="slider-card" id="sliderCard-deer">
+            <span class="extinct-pill" id="extinct-deer">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🦌</span>
+                <span>Deer</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-deer">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-deer" min="0" max="200" step="5" value="100" oninput="onSliderChange('deer', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Owl -->
+          <div class="slider-card" id="sliderCard-owl">
+            <span class="extinct-pill" id="extinct-owl">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🦉</span>
+                <span>Owl</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-owl">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-owl" min="0" max="200" step="5" value="100" oninput="onSliderChange('owl', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Fox -->
+          <div class="slider-card" id="sliderCard-fox">
+            <span class="extinct-pill" id="extinct-fox">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🦊</span>
+                <span>Fox</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-fox">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-fox" min="0" max="200" step="5" value="100" oninput="onSliderChange('fox', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+
+          <!-- Wolf -->
+          <div class="slider-card" id="sliderCard-wolf">
+            <span class="extinct-pill" id="extinct-wolf">Extinct! ☠️</span>
+            <div class="slider-header">
+              <div class="slider-title">
+                <span class="icon">🐺</span>
+                <span>Wolf</span>
+              </div>
+              <span class="slider-val-badge" id="valBadge-wolf">100%</span>
+            </div>
+            <input type="range" class="custom-range" id="slider-wolf" min="0" max="200" step="5" value="100" oninput="onSliderChange('wolf', this.value)">
+            <div class="range-marks">
+              <span>0% (None)</span>
+              <span>100% (Normal)</span>
+              <span>200% (Many)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Quick Status Badges -->
+        <div class="live-organism-row">
+          <div class="live-chip"><span class="icon">🌱</span> Grass: <span class="cur-num" id="live-grass">100</span></div>
+          <div class="live-chip"><span class="icon">🐭</span> Mice: <span class="cur-num" id="live-mice">100</span></div>
+          <div class="live-chip"><span class="icon">🐇</span> Rabbit: <span class="cur-num" id="live-rabbit">100</span></div>
+          <div class="live-chip"><span class="icon">🦌</span> Deer: <span class="cur-num" id="live-deer">100</span></div>
+          <div class="live-chip"><span class="icon">🦉</span> Owl: <span class="cur-num" id="live-owl">100</span></div>
+          <div class="live-chip"><span class="icon">🦊</span> Fox: <span class="cur-num" id="live-fox">100</span></div>
+          <div class="live-chip"><span class="icon">🐺</span> Wolf: <span class="cur-num" id="live-wolf">100</span></div>
+        </div>
+
+        <div class="bottom-nav">
+          <button class="btn btn-secondary" onclick="goToStep(2)">
+            ⬅️ Back to Predict
+          </button>
+          <button class="btn btn-primary" id="btnNextToObserve" onclick="goToStep(4)">
+            Next: Observe Results ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==============================================================
+         STEP 4: OBSERVE (Graph + Living Animation + Check Predictions)
+         ============================================================== -->
+    <section id="step4View" class="tab-view">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Step 4: Observe the Results</h2>
+            <button class="speak-btn" onclick="speakText('Step 4: Observe the results. Look at the line graph, the living habitat, and check if your predictions were right!')">🔊</button>
+          </div>
+          <span class="section-badge">📊 Data & Comparison</span>
+        </div>
+
+        <!-- View Switcher Tabs to prevent information overload -->
+        <div class="observe-tabs">
+          <button class="obs-tab-btn active" id="obsTabBtn-visual" onclick="switchObserveTab('visual')">
+            🌿 Living Habitat & Graph
+          </button>
+          <button class="obs-tab-btn" id="obsTabBtn-verify" onclick="switchObserveTab('verify')">
+            🎯 Check Predictions (<span id="obsScorePill">Results</span>)
+          </button>
+          <button class="obs-tab-btn" id="obsTabBtn-all" onclick="switchObserveTab('all')">
+            📑 View All
+          </button>
+        </div>
+
+        <div class="observe-layout">
+          <!-- Area 1: Living Habitat & Line Graph (Visual Observation) -->
+          <div id="observeVisualSection" style="display:flex; flex-direction:column; gap:20px;">
+            <!-- 1. Living Habitat Animation Area -->
+            <div class="habitat-card">
+              <div class="habitat-header">
+                <span class="habitat-title">🌿 Living Habitat: Prairie & Forest</span>
+                <span style="font-size:13px; font-weight:700; color:#047857;" id="habitatOrganismTotal">
+                  Living Organisms: Active
+                </span>
+              </div>
+
+              <!-- Extinct Banner Overlay -->
+              <div class="extinct-banner-overlay" id="extinctBannerOverlay">
+                <span>⚠️ Extinction Alert!</span>
+                <span id="extinctAnimalsText">Grass is Extinct!</span>
+              </div>
+
+              <div class="habitat-stage" id="habitatStage">
+                <!-- Organism emojis are dynamically populated and moved here -->
+              </div>
+            </div>
+
+            <!-- 2. Line Graph Canvas -->
+            <div class="graph-card">
+              <div class="graph-header">
+                <h3 style="font-family:var(--font-display); font-size:17px; font-weight:800; color:var(--primary-dark);">
+                  📈 Population Over Time
+                </h3>
+                <div class="graph-legend">
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-grass);"></span> 🌱 Grass</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-mice);"></span> 🐭 Mice</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-rabbit);"></span> 🐇 Rabbit</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-deer);"></span> 🦌 Deer</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-owl);"></span> 🦉 Owl</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-fox);"></span> 🦊 Fox</div>
+                  <div class="legend-chip"><span class="legend-line" style="background:var(--color-wolf);"></span> 🐺 Wolf</div>
+                </div>
+              </div>
+
+              <div class="canvas-container">
+                <canvas id="populationChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Area 2: Prediction vs Actual Verification Table -->
+          <div id="observeVerifySection" class="verify-card" style="display:none;">
+            <div class="section-header" style="margin-bottom:8px;">
+              <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--primary-dark);">
+                🎯 Did Your Predictions Come True?
+              </h3>
+              <button class="speak-btn" onclick="speakText('Did your predictions come true? Let us check each animal.')">🔊</button>
+            </div>
+            <p style="font-size:14px; color:var(--text-muted); font-weight:600;">
+              Compare what you predicted with what actually happened in the simulation:
+            </p>
+
+            <div class="verify-grid" id="verifyGrid">
+              <!-- Dynamically populated comparison cards -->
+            </div>
+
+            <div class="score-summary-banner" id="scoreSummaryBanner">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:26px;">🏆</span>
+                <span id="scoreSummaryText">You got 5 out of 6 correct! Great job, Ecologist!</span>
+              </div>
+              <button class="speak-btn" onclick="speakScoreSummary()">🔊</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <button class="btn btn-secondary" onclick="goToStep(3)">
+            ⬅️ Back to Experiment
+          </button>
+          <button class="btn btn-primary" onclick="goToStep(5)">
+            Next: Explain & Reflect ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==============================================================
+         STEP 5: EXPLAIN & REFLECT (Sentence Builder & Certificate)
+         ============================================================== -->
+    <section id="step5View" class="tab-view">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Step 5: Explain & Reflect</h2>
+            <button class="speak-btn" onclick="speakText('Step 5: Explain and reflect. Build scientific sentences to explain what you discovered, and write your reflection.')">🔊</button>
+          </div>
+          <span class="section-badge">✍️ Write Like a Scientist</span>
+        </div>
+
+        <!-- 1. Guided Sentence Frame Scaffolding -->
+        <div class="sentence-scaffold-card">
+          <div class="section-header" style="margin-bottom:8px;">
+            <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--primary-dark);">
+              🧩 Sentence Builder: Cause & Effect
+            </h3>
+            <span style="font-size:13px; font-weight:700; color:var(--text-muted);">Choose words to complete the sentence:</span>
+          </div>
+
+          <div class="sentence-builder-box">
+            When the
+            <select class="styled-select" id="causeSubject" onchange="updateBuiltSentence()">
+              <option value="Grass">Grass 🌱</option>
+              <option value="Mice">Mice 🐭</option>
+              <option value="Rabbit">Rabbit 🐇</option>
+              <option value="Deer">Deer 🦌</option>
+              <option value="Owl">Owl 🦉</option>
+              <option value="Fox">Fox 🦊</option>
+              <option value="Wolf">Wolf 🐺</option>
+            </select>
+            <select class="styled-select" id="causeAction" onchange="updateBuiltSentence()">
+              <option value="decreased">decreased ⬇️</option>
+              <option value="increased">increased ⬆️</option>
+              <option value="disappeared">disappeared ❌</option>
+            </select>, 
+            the
+            <select class="styled-select" id="effectSubject" onchange="updateBuiltSentence()">
+              <option value="Rabbit">Rabbit 🐇</option>
+              <option value="Mice">Mice 🐭</option>
+              <option value="Grass">Grass 🌱</option>
+              <option value="Deer">Deer 🦌</option>
+              <option value="Owl">Owl 🦉</option>
+              <option value="Fox">Fox 🦊</option>
+              <option value="Wolf">Wolf 🐺</option>
+            </select>
+            <select class="styled-select" id="effectAction" onchange="updateBuiltSentence()">
+              <option value="decreased">decreased ⬇️</option>
+              <option value="increased">increased ⬆️</option>
+              <option value="starved">could not find food 🍽️</option>
+              <option value="stayed the same">stayed the same ➡️</option>
+            </select>
+            because
+            <select class="styled-select" id="reasonSelect" onchange="updateBuiltSentence()">
+              <option value="there was less food to eat">there was less food to eat.</option>
+              <option value="there were fewer predators hunting them">there were fewer predators hunting them.</option>
+              <option value="they lost their food source">they lost their food source.</option>
+              <option value="they had more food available">they had more food available.</option>
+              <option value="all living things in an ecosystem are connected">all living things in an ecosystem are connected.</option>
+            </select>
+          </div>
+
+          <div class="custom-sentence-result">
+            <span id="finalBuiltSentence">
+              "When the Grass decreased, the Rabbit decreased because there was less food to eat."
+            </span>
+            <button class="speak-btn" onclick="speakBuiltSentence()">🔊 Listen</button>
+          </div>
+        </div>
+
+        <!-- 2. Free Reflection Area with Starter Chips -->
+        <div class="reflection-area">
+          <div class="section-header" style="margin-bottom:8px;">
+            <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--primary-dark);">
+              💭 What did you learn today?
+            </h3>
+            <button class="speak-btn" onclick="speakText('What did you learn today? Click the starter buttons or type your own ideas.')">🔊</button>
+          </div>
+          <p style="font-size:14px; color:var(--text-muted); font-weight:600; margin-bottom:10px;">
+            Click a starter button to add it to your writing:
+          </p>
+
+          <div class="sentence-starters">
+            <button class="starter-chip" onclick="addStarter('I learned that ')">+ "I learned that..."</button>
+            <button class="starter-chip" onclick="addStarter('If one animal changes, ')">+ "If one animal changes..."</button>
+            <button class="starter-chip" onclick="addStarter('Predators and prey need each other because ')">+ "Predators and prey..."</button>
+            <button class="starter-chip" onclick="addStarter('We must protect the ecosystem because ')">+ "We must protect..."</button>
+          </div>
+
+          <textarea id="reflectionText" class="reflection-textarea" placeholder="Write your reflection in English here... (e.g. I learned that when grass is removed, rabbits and mice have no food!)"></textarea>
+        </div>
+
+        <!-- 3. Student Profile & Export Options -->
+        <div class="export-section">
+          <div class="section-header" style="margin-bottom:4px;">
+            <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--primary-dark);">
+              🏅 Save & Share Your Science Report
+            </h3>
+          </div>
+
+          <div class="student-name-row">
+            <label for="studentNameInput">Your Name:</label>
+            <input type="text" id="studentNameInput" class="student-name-input" placeholder="e.g. Minji Kim (Grade 5)" value="Eco Explorer">
+          </div>
+
+          <div class="export-buttons-row">
+            <button class="btn btn-primary" onclick="exportReportImage()">
+              🖼️ Download Science Report (Image)
+            </button>
+            <button class="btn btn-secondary" onclick="exportReportText()">
+              📄 Download Text File (.txt)
+            </button>
+            <button class="btn btn-secondary" onclick="window.print()">
+              🖨️ Print / Save as PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <button class="btn btn-secondary" onclick="goToStep(4)">
+            ⬅️ Back to Observe
+          </button>
+          <button class="btn btn-accent" onclick="resetWholeProject()">
+            🔄 Start New Exploration
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- Offscreen Canvas for Certificate / Report Card Generation -->
+  <canvas id="reportCanvas" width="900" height="1180"></canvas>
+
+  <script>
+    /* =========================================================
+       1. DATA STRUCTURES & ECOSYSTEM DEFINITIONS
+       ========================================================= */
+    const ORGANISMS = {
+      grass: {
+        id: 'grass',
+        name: 'Grass',
+        icon: '🌱',
+        role: 'Producer',
+        roleClass: 'role-producer',
+        level: 1,
+        color: '#16A34A',
+        basePop: 100,
+        eats: 'makes food using sunlight and water',
+        eatsPrefix: '☀️ Energy Source:',
+        eatenBy: 'Mice, Rabbits, and Deer',
+        fact: 'Grass is a producer. Without grass, herbivores cannot survive!'
+      },
+      mice: {
+        id: 'mice',
+        name: 'Mice',
+        icon: '🐭',
+        role: 'Primary Consumer (Herbivore)',
+        roleClass: 'role-consumer',
+        level: 2,
+        color: '#A0522D',
+        basePop: 100,
+        eats: 'Grass 🌱',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'Owl and Fox',
+        fact: 'Mice reproduce quickly, but owls and foxes keep their numbers balanced!'
+      },
+      rabbit: {
+        id: 'rabbit',
+        name: 'Rabbit',
+        icon: '🐇',
+        role: 'Primary Consumer (Herbivore)',
+        roleClass: 'role-consumer',
+        level: 2,
+        color: '#0D9488',
+        basePop: 100,
+        eats: 'Grass 🌱',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'Owl and Fox',
+        fact: 'Rabbits love fresh grass and can run fast to escape from predators!'
+      },
+      deer: {
+        id: 'deer',
+        name: 'Deer',
+        icon: '🦌',
+        role: 'Primary Consumer (Herbivore)',
+        roleClass: 'role-consumer',
+        level: 2,
+        color: '#D2691E',
+        basePop: 100,
+        eats: 'Grass 🌱',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'Wolf 🐺',
+        fact: 'Deer eat large amounts of grass every day. Wolves keep deer numbers in check!'
+      },
+      owl: {
+        id: 'owl',
+        name: 'Owl',
+        icon: '🦉',
+        role: 'Predator (Carnivore)',
+        roleClass: 'role-predator',
+        level: 3,
+        color: '#7C3AED',
+        basePop: 100,
+        eats: 'Mice 🐭 and Rabbits 🐇',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'None (Top predator for small mammals)',
+        fact: 'Owls hunt mice and rabbits quietly at night using sharp hearing and eyesight!'
+      },
+      fox: {
+        id: 'fox',
+        name: 'Fox',
+        icon: '🦊',
+        role: 'Predator (Carnivore)',
+        roleClass: 'role-predator',
+        level: 3,
+        color: '#EA580C',
+        basePop: 100,
+        eats: 'Mice 🐭 and Rabbits 🐇',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'Wolf 🐺',
+        fact: 'Foxes are quick hunters that catch mice and rabbits, but must watch out for wolves!'
+      },
+      wolf: {
+        id: 'wolf',
+        name: 'Wolf',
+        icon: '🐺',
+        role: 'Apex Predator',
+        roleClass: 'role-predator',
+        level: 4,
+        color: '#334155',
+        basePop: 100,
+        eats: 'Deer 🦌 and Fox 🦊',
+        eatsPrefix: '🍽️ Food:',
+        eatenBy: 'None (Apex predator at top of food web)',
+        fact: 'The wolf is at the very top of the food chain, maintaining balance across the whole ecosystem.'
+      }
+    };
+
+    /* =========================================================
+       2. APPLICATION STATE
+       ========================================================= */
+    const state = {
+      currentStep: 1,
+      audioEnabled: true,
+      
+      // Step 2: Prediction State
+      chosenOrganism: 'grass',
+      changeAction: 'remove', // 'decrease', 'remove', 'increase'
+      predictions: {}, // e.g. { mice: 'decrease', rabbit: 'decrease', deer: 'decrease', ... }
+
+      // Step 3 & 4: Simulation State
+      sliderValues: { grass: 100, mice: 100, rabbit: 100, deer: 100, owl: 100, fox: 100, wolf: 100 },
+      currentPop: { grass: 100, mice: 100, rabbit: 100, deer: 100, owl: 100, fox: 100, wolf: 100 },
+      history: {
+        time: [0],
+        grass: [100],
+        mice: [100],
+        rabbit: [100],
+        deer: [100],
+        owl: [100],
+        fox: [100],
+        wolf: [100]
+      },
+      simMonth: 0,
+      maxSimMonths: 24,
+      isRunning: false,
+      timerId: null,
+      speedMultiplier: 1,
+      hasRunExperiment: false,
+      extinctAnimals: new Set()
+    };
+
+    /* =========================================================
+       3. TEXT-TO-SPEECH (TTS) ENGINE
+       ========================================================= */
+    function speakText(text) {
+      if (!state.audioEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const ttsToggleBtn = document.getElementById('ttsToggleBtn');
+    ttsToggleBtn.addEventListener('click', () => {
+      state.audioEnabled = !state.audioEnabled;
+      if (state.audioEnabled) {
+        ttsToggleBtn.innerHTML = '<span>🔊</span> <span>English Audio: ON</span>';
+        ttsToggleBtn.style.background = 'var(--sky-light)';
+        ttsToggleBtn.style.borderColor = 'var(--sky)';
+        showToast('🔊 Audio Pronunciation is ON', '✨');
+        speakText('Audio is now turned on!');
+      } else {
+        window.speechSynthesis.cancel();
+        ttsToggleBtn.innerHTML = '<span>🔇</span> <span>English Audio: OFF</span>';
+        ttsToggleBtn.style.background = '#EDF2F7';
+        ttsToggleBtn.style.borderColor = '#CBD5E1';
+        showToast('🔇 Audio Pronunciation is OFF', 'ℹ️');
+      }
+    });
+
+    function showToast(msg, icon = '✨') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      document.getElementById('toastIcon').innerText = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    /* =========================================================
+       4. STEP NAVIGATION
+       ========================================================= */
+    function goToStep(stepNum) {
+      // Validation: require all 6 other predictions before step 3
+      if (stepNum === 3 && Object.keys(state.predictions).length < 6) {
+        showToast('Please make all 6 predictions first!', '⚠️');
+        return;
+      }
+
+      state.currentStep = stepNum;
+
+      // Update Nav Buttons
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`stepBtn${i}`);
+        btn.classList.remove('active');
+        if (i < stepNum) {
+          btn.classList.add('completed');
+          btn.classList.remove('locked');
+        } else if (i === stepNum) {
+          btn.classList.add('active');
+          btn.classList.remove('locked');
+        } else {
+          if (i === 3 && Object.keys(state.predictions).length < 6) btn.classList.add('locked');
+          else if (i >= 4 && !state.hasRunExperiment) btn.classList.add('locked');
+          else btn.classList.remove('locked');
+        }
+      }
+
+      // Toggle views
+      for (let i = 1; i <= 5; i++) {
+        const view = document.getElementById(`step${i}View`);
+        if (view) {
+          if (i === stepNum) view.classList.add('active');
+          else view.classList.remove('active');
+        }
+      }
+
+      // Step-specific trigger logic
+      if (stepNum === 1) {
+        speakText('Step 1: Explore the food web. Tap an animal to read about it.');
+      } else if (stepNum === 2) {
+        renderPredictionRows();
+        updateHypothesisSentence();
+        speakText('Step 2: Make your prediction.');
+      } else if (stepNum === 3) {
+        updateSlidersFromCurrentState();
+        speakText('Step 3: Test with the simulator. Click Start when you are ready.');
+      } else if (stepNum === 4) {
+        renderGraph();
+        renderHabitatStage();
+        renderVerificationGrid();
+        speakText('Step 4: Observe your results.');
+      } else if (stepNum === 5) {
+        updateBuiltSentence();
+        speakText('Step 5: Explain and reflect on what you learned.');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Bind step button clicks
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetStep = parseInt(btn.getAttribute('data-step'));
+        if (btn.classList.contains('locked')) {
+          if (targetStep === 3) showToast('Complete your predictions in Step 2 first!', '⚠️');
+          else if (targetStep >= 4) showToast('Run the experiment in Step 3 first!', '⚠️');
+          return;
+        }
+        goToStep(targetStep);
+      });
+    });
+
+    /* =========================================================
+       5. STEP 1: EXPLORE LOGIC
+       ========================================================= */
+    let currentlySelectedOrg = null;
+
+    function selectOrganism(orgKey) {
+      const org = ORGANISMS[orgKey];
+      if (!org) return;
+
+      currentlySelectedOrg = orgKey;
+
+      // Update node visual highlight in SVG
+      document.querySelectorAll('.foodweb-node circle').forEach(c => {
+        c.setAttribute('stroke-width', '3');
+      });
+      const nodeCircle = document.querySelector(`#node-${orgKey} circle`);
+      if (nodeCircle) nodeCircle.setAttribute('stroke-width', '6');
+
+      // Highlight arrows connected to this node
+      highlightConnectingArrows(orgKey);
+
+      // Populate Info Panel
+      document.getElementById('infoEmptyState').style.display = 'none';
+      const details = document.getElementById('infoCardDetails');
+      details.style.display = 'flex';
+
+      document.getElementById('detailIcon').innerText = org.icon;
+      document.getElementById('detailTitle').innerText = org.name;
+      
+      const roleElem = document.getElementById('detailRole');
+      roleElem.innerText = org.role;
+      roleElem.className = `role-badge ${org.roleClass}`;
+
+      document.getElementById('sentEatsPrefix').innerText = org.eatsPrefix;
+      document.getElementById('sentEatsText').innerText = org.eats;
+      document.getElementById('sentEatenText').innerText = `It is eaten by ${org.eatenBy}.`;
+      document.getElementById('sentFactText').innerText = org.fact;
+
+      // Wire up speech buttons
+      document.getElementById('speakEatsBtn').onclick = () => {
+        speakText(`${org.name}. ${org.eatsPrefix} ${org.eats}`);
+      };
+      document.getElementById('speakEatenBtn').onclick = () => {
+        speakText(`It is eaten by ${org.eatenBy}.`);
+      };
+      document.getElementById('speakFactBtn').onclick = () => {
+        speakText(org.fact);
+      };
+      document.getElementById('detailSpeakAllBtn').onclick = () => {
+        speakText(`${org.name}. Role: ${org.role}. ${org.eatsPrefix} ${org.eats}. It is eaten by ${org.eatenBy}. Fun fact: ${org.fact}`);
+      };
+
+      speakText(`${org.name}. ${org.role}.`);
+    }
+
+    function highlightConnectingArrows(orgKey) {
+      document.querySelectorAll('.foodweb-svg path').forEach(p => {
+        p.setAttribute('stroke', '#CBD5E1');
+        p.setAttribute('stroke-width', '3');
+        p.setAttribute('marker-end', 'url(#arrow)');
+      });
+
+      const arrowMap = {
+        grass: ['path-grass-mice', 'path-grass-rabbit', 'path-grass-deer'],
+        mice: ['path-grass-mice', 'path-mice-owl', 'path-mice-fox'],
+        rabbit: ['path-grass-rabbit', 'path-rabbit-owl', 'path-rabbit-fox'],
+        deer: ['path-grass-deer', 'path-deer-wolf'],
+        owl: ['path-mice-owl', 'path-rabbit-owl'],
+        fox: ['path-mice-fox', 'path-rabbit-fox', 'path-fox-wolf'],
+        wolf: ['path-deer-wolf', 'path-fox-wolf']
+      };
+
+      if (arrowMap[orgKey]) {
+        arrowMap[orgKey].forEach(id => {
+          const path = document.getElementById(id);
+          if (path) {
+            path.setAttribute('stroke', '#E76F51');
+            path.setAttribute('stroke-width', '5');
+            path.setAttribute('marker-end', 'url(#arrow-active)');
+          }
+        });
+      }
+    }
+
+    /* =========================================================
+       6. STEP 2: PREDICT LOGIC
+       ========================================================= */
+    function setChosenOrganism(orgKey) {
+      state.chosenOrganism = orgKey;
+      document.querySelectorAll('.creature-pick-grid .pick-card').forEach(c => {
+        if (c.getAttribute('data-organism') === orgKey) c.classList.add('selected');
+        else c.classList.remove('selected');
+      });
+
+      state.predictions = {};
+      renderPredictionRows();
+      updateHypothesisSentence();
+      checkPredictionReady();
+      speakText(`You chose ${ORGANISMS[orgKey].name}. Now choose how it changes.`);
+    }
+
+    function setChangeAction(action) {
+      state.changeAction = action;
+      document.querySelectorAll('.change-type-grid .change-card').forEach(c => {
+        if (c.getAttribute('data-change') === action) c.classList.add('selected');
+        else c.classList.remove('selected');
+      });
+      updateHypothesisSentence();
+      speakText(`Change to: ${action}.`);
+    }
+
+    function renderPredictionRows() {
+      const container = document.getElementById('predictRowsContainer');
+      container.innerHTML = '';
+
+      const otherKeys = Object.keys(ORGANISMS).filter(k => k !== state.chosenOrganism);
+
+      otherKeys.forEach(key => {
+        const org = ORGANISMS[key];
+        const row = document.createElement('div');
+        row.className = 'predict-row';
+        row.id = `pred-row-${key}`;
+
+        const curVal = state.predictions[key];
+
+        row.innerHTML = `
+          <div class="predict-creature">
+            <span class="icon">${org.icon}</span>
+            <span>${org.name}</span>
+          </div>
+          <div class="predict-options">
+            <button class="pred-opt-btn ${curVal === 'increase' ? 'active-inc' : ''}" 
+              onclick="setPrediction('${key}', 'increase')">
+              ⬆️ Increase
+            </button>
+            <button class="pred-opt-btn ${curVal === 'decrease' ? 'active-dec' : ''}" 
+              onclick="setPrediction('${key}', 'decrease')">
+              ⬇️ Decrease
+            </button>
+            <button class="pred-opt-btn ${curVal === 'same' ? 'active-same' : ''}" 
+              onclick="setPrediction('${key}', 'same')">
+              ➡️ Same
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      updatePredictionBadge();
+    }
+
+    function setPrediction(orgKey, direction) {
+      state.predictions[orgKey] = direction;
+      renderPredictionRows();
+      updateHypothesisSentence();
+      checkPredictionReady();
+      speakText(`${ORGANISMS[orgKey].name} will ${direction}.`);
+    }
+
+    function updatePredictionBadge() {
+      const count = Object.keys(state.predictions).length;
+      const badge = document.getElementById('predictProgressBadge');
+      badge.innerText = `(${count} / 6 predicted)`;
+      if (count === 6) {
+        badge.innerText = `✅ All 6 predicted!`;
+        badge.style.color = '#15803D';
+      } else {
+        badge.style.color = 'var(--accent)';
+      }
+    }
+
+    function checkPredictionReady() {
+      const count = Object.keys(state.predictions).length;
+      const nextBtn = document.getElementById('btnNextToExperiment');
+      const step3Nav = document.getElementById('stepBtn3');
+
+      if (count === 6) {
+        nextBtn.removeAttribute('disabled');
+        step3Nav.classList.remove('locked');
+      } else {
+        nextBtn.setAttribute('disabled', 'true');
+        step3Nav.classList.add('locked');
+      }
+    }
+
+    function updateHypothesisSentence() {
+      const orgName = ORGANISMS[state.chosenOrganism].name;
+      let actionText = '';
+      if (state.changeAction === 'remove') actionText = 'is removed (0%)';
+      else if (state.changeAction === 'decrease') actionText = 'decreases ⬇️';
+      else actionText = 'increases ⬆️';
+
+      const predictedList = Object.keys(state.predictions).map(k => {
+        const symbol = state.predictions[k] === 'increase' ? '⬆️' : (state.predictions[k] === 'decrease' ? '⬇️' : '➡️');
+        return `${ORGANISMS[k].name} ${symbol}`;
+      }).join(', ');
+
+      const sentence = `If ${orgName} ${actionText}, I predict that: ${predictedList || '(choose your predictions above)'}`;
+      document.getElementById('hypothesisText').innerText = sentence;
+    }
+
+    function speakCurrentHypothesis() {
+      const text = document.getElementById('hypothesisText').innerText;
+      speakText(text);
+    }
+
+    /* =========================================================
+       7. STEP 3: EXPERIMENT & SCIENTIFIC SIMULATION ENGINE
+       ========================================================= */
+    function resetToHypothesis() {
+      Object.keys(ORGANISMS).forEach(k => {
+        state.sliderValues[k] = 100;
+      });
+
+      if (state.changeAction === 'remove') {
+        state.sliderValues[state.chosenOrganism] = 0;
+      } else if (state.changeAction === 'decrease') {
+        state.sliderValues[state.chosenOrganism] = 20;
+      } else if (state.changeAction === 'increase') {
+        state.sliderValues[state.chosenOrganism] = 180;
+      }
+
+      updateSlidersFromCurrentState();
+      resetSimulation();
+      showToast(`Applied: ${ORGANISMS[state.chosenOrganism].name} set to ${state.sliderValues[state.chosenOrganism]}%`, '🎯');
+    }
+
+    function updateSlidersFromCurrentState() {
+      const chosenName = ORGANISMS[state.chosenOrganism].name;
+      let targetP = state.changeAction === 'remove' ? '0%' : (state.changeAction === 'decrease' ? '20%' : '180%');
+      document.getElementById('presetNoticeText').innerText = `${chosenName} to ${targetP}`;
+
+      Object.keys(ORGANISMS).forEach(k => {
+        const slider = document.getElementById(`slider-${k}`);
+        const badge = document.getElementById(`valBadge-${k}`);
+        const val = state.sliderValues[k];
+        if (slider) slider.value = val;
+        if (badge) badge.innerText = `${val}%`;
+      });
+    }
+
+    function onSliderChange(orgKey, value) {
+      state.sliderValues[orgKey] = parseInt(value);
+      document.getElementById(`valBadge-${orgKey}`).innerText = `${value}%`;
+      
+      if (state.simMonth === 0) {
+        state.currentPop[orgKey] = parseInt(value);
+        state.history[orgKey] = [parseInt(value)];
+        updateLiveChips();
+      }
+    }
+
+    function setSpeed(speed) {
+      state.speedMultiplier = speed;
+      document.querySelectorAll('.speed-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-speed')) === speed) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      if (state.isRunning) {
+        pauseSimulation();
+        startSimulation();
+      }
+    }
+
+    function toggleSimulation() {
+      if (state.isRunning) {
+        pauseSimulation();
+      } else {
+        startSimulation();
+      }
+    }
+
+    function startSimulation() {
+      if (state.simMonth >= state.maxSimMonths) {
+        resetSimulation();
+      }
+
+      state.isRunning = true;
+      state.hasRunExperiment = true;
+      document.getElementById('btnStartSim').innerHTML = '⏸ Pause';
+      document.getElementById('btnStartSim').classList.replace('btn-primary', 'btn-accent');
+      
+      document.getElementById('stepBtn4').classList.remove('locked');
+      document.getElementById('stepBtn5').classList.remove('locked');
+
+      const intervalMs = 900 / state.speedMultiplier;
+      state.timerId = setInterval(simulationTick, intervalMs);
+      showToast('Simulation running...', '▶');
+    }
+
+    function pauseSimulation() {
+      state.isRunning = false;
+      clearInterval(state.timerId);
+      document.getElementById('btnStartSim').innerHTML = '▶ Continue';
+      document.getElementById('btnStartSim').classList.replace('btn-accent', 'btn-primary');
+    }
+
+    function resetSimulation() {
+      pauseSimulation();
+      document.getElementById('btnStartSim').innerHTML = '▶ Start Simulation';
+      document.getElementById('btnStartSim').classList.replace('btn-accent', 'btn-primary');
+
+      state.simMonth = 0;
+      state.extinctAnimals.clear();
+
+      Object.keys(ORGANISMS).forEach(k => {
+        state.currentPop[k] = state.sliderValues[k];
+        state.history[k] = [state.sliderValues[k]];
+      });
+      state.history.time = [0];
+
+      document.getElementById('simMonthCount').innerText = `Month 0`;
+      updateLiveChips();
+      updateExtinctionBadges();
+
+      if (state.currentStep === 4) {
+        renderGraph();
+        renderHabitatStage();
+        renderVerificationGrid();
+      }
+      showToast('Simulation reset to start', '↺');
+    }
+
+    /*
+      Ecosystem Simulation Model (7 Organisms):
+      - Rock-Solid Baseline: When all populations are 100%, change is strictly 0.0 every tick.
+      - Lagged Predator Response: Predators have an ecological delay (buffered prey average),
+        meaning when prey declines, predators hold steady for 1-2 months before dropping.
+      - Trophic Cascade: Producer (Grass) -> Herbivores (Mice, Rabbit, Deer) -> Predators (Owl, Fox) -> Apex (Wolf).
+      - Permanent Extinction: If any organism reaches 0, it stays at 0 and is flagged with "Extinct!".
+    */
+    function simulationTick() {
+      state.simMonth++;
+      document.getElementById('simMonthCount').innerText = `Month ${state.simMonth}`;
+
+      const prev = { ...state.currentPop };
+      const next = {};
+
+      const clamp = (val) => Math.max(0, Math.min(220, Math.round(val)));
+
+      // 1. Grass (Producer)
+      if (prev.grass <= 0) {
+        next.grass = 0;
+      } else {
+        // Natural regrowth potential towards 100
+        let regrowth = (100 - prev.grass) * 0.18;
+        // Total herbivore grazing consumption (balanced at 46 when all are 100)
+        let grazing = (prev.mice * 0.12) + (prev.rabbit * 0.14) + (prev.deer * 0.20);
+        let grassChange = regrowth - (grazing - 46);
+        next.grass = clamp(prev.grass + grassChange);
+      }
+
+      // 2. Mice (Herbivore - eats Grass)
+      if (prev.mice <= 0) {
+        next.mice = 0;
+      } else {
+        let foodEffect = (prev.grass - 100) * 0.22;
+        let predation = ((prev.owl + prev.fox) - 200) * 0.15;
+        let balance = (100 - prev.mice) * 0.09;
+        let miceChange = foodEffect - predation + balance;
+        if (prev.grass <= 5) miceChange -= 22; // starvation if no grass
+        next.mice = clamp(prev.mice + miceChange);
+      }
+
+      // 3. Rabbit (Herbivore - eats Grass)
+      if (prev.rabbit <= 0) {
+        next.rabbit = 0;
+      } else {
+        let foodEffect = (prev.grass - 100) * 0.24;
+        let predation = ((prev.owl + prev.fox) - 200) * 0.16;
+        let balance = (100 - prev.rabbit) * 0.09;
+        let rabbitChange = foodEffect - predation + balance;
+        if (prev.grass <= 5) rabbitChange -= 22;
+        next.rabbit = clamp(prev.rabbit + rabbitChange);
+      }
+
+      // 4. Deer (Herbivore - eats Grass)
+      if (prev.deer <= 0) {
+        next.deer = 0;
+      } else {
+        let foodEffect = (prev.grass - 100) * 0.22;
+        let predation = (prev.wolf - 100) * 0.22;
+        let balance = (100 - prev.deer) * 0.08;
+        let deerChange = foodEffect - predation + balance;
+        if (prev.grass <= 5) deerChange -= 18;
+        next.deer = clamp(prev.deer + deerChange);
+      }
+
+      // Biological Delay Buffer for Predators:
+      // Predators have body energy stores and take time to feel prey shortages.
+      // We look back at history to calculate a lagged effective prey availability.
+      const historyLen = state.history.time.length;
+      const getLaggedPrey = (keys) => {
+        let currentSum = 0;
+        let prevSum = 0;
+        keys.forEach(k => {
+          currentSum += prev[k];
+          let olderVal = historyLen >= 2 ? state.history[k][historyLen - 2] : prev[k];
+          prevSum += olderVal;
+        });
+        const currentAvg = currentSum / keys.length;
+        const prevAvg = prevSum / keys.length;
+        // 60% weight on previous step, 40% on current creates a realistic 1-2 month time delay
+        return (0.4 * currentAvg) + (0.6 * prevAvg);
+      };
+
+      // 5. Owl (Predator of Mice & Rabbit)
+      if (prev.owl <= 0) {
+        next.owl = 0;
+      } else {
+        let effectivePrey = getLaggedPrey(['mice', 'rabbit']);
+        let preyEffect = (effectivePrey - 100) * 0.20;
+        let balance = (100 - prev.owl) * 0.08;
+        let owlChange = preyEffect + balance;
+        // If prey is completely extinct for 2 months, starve
+        if (prev.mice <= 5 && prev.rabbit <= 5) {
+          owlChange -= 18;
+        }
+        next.owl = clamp(prev.owl + owlChange);
+      }
+
+      // 6. Fox (Predator of Mice & Rabbit, prey of Wolf)
+      if (prev.fox <= 0) {
+        next.fox = 0;
+      } else {
+        let effectivePrey = getLaggedPrey(['mice', 'rabbit']);
+        let preyEffect = (effectivePrey - 100) * 0.18;
+        let wolfPredation = (prev.wolf - 100) * 0.14;
+        let balance = (100 - prev.fox) * 0.08;
+        let foxChange = preyEffect - wolfPredation + balance;
+        if (prev.mice <= 5 && prev.rabbit <= 5) {
+          foxChange -= 18;
+        }
+        next.fox = clamp(prev.fox + foxChange);
+      }
+
+      // 7. Wolf (Apex Predator of Deer & Fox)
+      // Wolves are larger animals with an even greater endurance buffer (longer delay)
+      if (prev.wolf <= 0) {
+        next.wolf = 0;
+      } else {
+        let effectivePrey = getLaggedPrey(['deer', 'fox']);
+        let preyEffect = (effectivePrey - 100) * 0.18;
+        let balance = (100 - prev.wolf) * 0.08;
+        let wolfChange = preyEffect + balance;
+        if (prev.deer <= 5 && prev.fox <= 5) {
+          wolfChange -= 22;
+        }
+        next.wolf = clamp(prev.wolf + wolfChange);
+      }
+
+      // Check Extinctions and trigger alerts
+      Object.keys(ORGANISMS).forEach(k => {
+        if (next[k] <= 0) {
+          next[k] = 0;
+          if (!state.extinctAnimals.has(k)) {
+            state.extinctAnimals.add(k);
+            showToast(`⚠️ ${ORGANISMS[k].name} has gone Extinct!`, '☠️');
+            speakText(`Alert! ${ORGANISMS[k].name} has gone extinct!`);
+          }
+        }
+      });
+
+      // Update state
+      state.currentPop = next;
+      state.history.time.push(state.simMonth);
+      Object.keys(ORGANISMS).forEach(k => {
+        state.history[k].push(next[k]);
+      });
+
+      updateLiveChips();
+      updateExtinctionBadges();
+
+      if (state.currentStep === 4) {
+        renderGraph();
+        renderHabitatStage();
+        renderVerificationGrid();
+      }
+
+      if (state.simMonth >= state.maxSimMonths) {
+        pauseSimulation();
+        showToast('Experiment completed! View the results in Step 4.', '🏁');
+        speakText('Simulation completed! Let us go to Step 4 to observe the results.');
+      }
+    }
+
+    function updateLiveChips() {
+      Object.keys(ORGANISMS).forEach(k => {
+        const elem = document.getElementById(`live-${k}`);
+        if (elem) elem.innerText = state.currentPop[k];
+      });
+    }
+
+    function updateExtinctionBadges() {
+      Object.keys(ORGANISMS).forEach(k => {
+        const pill = document.getElementById(`extinct-${k}`);
+        if (pill) {
+          if (state.currentPop[k] <= 0) pill.classList.add('visible');
+          else pill.classList.remove('visible');
+        }
+      });
+    }
+
+    /* =========================================================
+       8. STEP 4: OBSERVE LOGIC (Canvas Line Chart & Habitat)
+       ========================================================= */
+    function renderGraph() {
+      const canvas = document.getElementById('populationChart');
+      if (!canvas) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = (rect.width || 700) * dpr;
+      canvas.height = (rect.height || 330) * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width || 700;
+      const height = rect.height || 330;
+      // Generous right padding (105px) so animal emoji badges fit comfortably next to line ends
+      const padding = { top: 25, right: 105, bottom: 40, left: 45 };
+
+      ctx.clearRect(0, 0, width, height);
+
+      const plotW = width - padding.left - padding.right;
+      const plotH = height - padding.top - padding.bottom;
+
+      // Grid lines
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#64748B';
+      ctx.font = '11px Quicksand, sans-serif';
+
+      const maxVal = 200;
+      const yTicks = [0, 50, 100, 150, 200];
+      yTicks.forEach(val => {
+        const y = padding.top + plotH - (val / maxVal) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${val}%`, padding.left - 8, y);
+      });
+
+      // Normal 100% baseline indicator
+      const normalY = padding.top + plotH - (100 / maxVal) * plotH;
+      ctx.save();
+      ctx.strokeStyle = '#94A3B8';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, normalY);
+      ctx.lineTo(width - padding.right, normalY);
+      ctx.stroke();
+      ctx.restore();
+
+      // X Axis (Months)
+      const maxMonths = Math.max(state.maxSimMonths, state.history.time.length - 1);
+      const xStep = plotW / maxMonths;
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      for (let m = 0; m <= maxMonths; m += 4) {
+        const x = padding.left + m * xStep;
+        ctx.fillText(`M${m}`, x, height - padding.bottom + 8);
+      }
+
+      // Collect endpoint labels for animal emojis
+      const emojiBadges = [];
+
+      // Draw Lines for all 7 Organisms
+      Object.keys(ORGANISMS).forEach(k => {
+        const org = ORGANISMS[k];
+        const data = state.history[k];
+        if (!data || data.length === 0) return;
+
+        ctx.strokeStyle = org.color;
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+
+        for (let i = 0; i < data.length; i++) {
+          const x = padding.left + i * xStep;
+          const y = padding.top + plotH - (Math.min(data[i], maxVal) / maxVal) * plotH;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Extinction point marker on chart if reached 0
+        const extinctIdx = data.findIndex(val => val === 0);
+        if (extinctIdx !== -1) {
+          const extX = padding.left + extinctIdx * xStep;
+          const extY = padding.top + plotH;
+          ctx.save();
+          ctx.fillStyle = '#DC2626';
+          ctx.beginPath();
+          ctx.arc(extX, extY, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(extX, extY, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = 'bold 11px Quicksand, sans-serif';
+          ctx.fillStyle = '#DC2626';
+          ctx.textAlign = 'center';
+          ctx.fillText(`☠️ M${extinctIdx}`, extX, extY - 9);
+          ctx.restore();
+        }
+
+        // End point dot
+        const lastVal = data[data.length - 1];
+        const lastX = padding.left + (data.length - 1) * xStep;
+        const lastY = padding.top + plotH - (Math.min(lastVal, maxVal) / maxVal) * plotH;
+        ctx.fillStyle = org.color;
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Save for emoji badge rendering
+        emojiBadges.push({
+          key: k,
+          org: org,
+          val: lastVal,
+          x: lastX,
+          idealY: lastY,
+          actualY: lastY
+        });
+      });
+
+      // Sort by idealY ascending to arrange emoji labels nicely without overlap
+      emojiBadges.sort((a, b) => a.idealY - b.idealY);
+
+      // Relax vertical positions to maintain clean spacing (min 20px gap)
+      const minGap = 20;
+      for (let i = 1; i < emojiBadges.length; i++) {
+        if (emojiBadges[i].actualY - emojiBadges[i - 1].actualY < minGap) {
+          emojiBadges[i].actualY = emojiBadges[i - 1].actualY + minGap;
+        }
+      }
+      // Keep within chart bounds
+      const maxY = padding.top + plotH + 8;
+      for (let i = emojiBadges.length - 1; i >= 0; i--) {
+        if (emojiBadges[i].actualY > maxY) {
+          emojiBadges[i].actualY = maxY;
+          for (let j = i - 1; j >= 0; j--) {
+            if (emojiBadges[j + 1].actualY - emojiBadges[j].actualY < minGap) {
+              emojiBadges[j].actualY = emojiBadges[j + 1].actualY - minGap;
+            }
+          }
+        }
+      }
+
+      // Draw each animal emoji badge beside its line!
+      emojiBadges.forEach(item => {
+        ctx.save();
+
+        // Guide line if the badge was shifted vertically to avoid overlap
+        if (Math.abs(item.actualY - item.idealY) > 4) {
+          ctx.strokeStyle = item.org.color;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([2, 2]);
+          ctx.beginPath();
+          ctx.moveTo(item.x + 6, item.idealY);
+          ctx.lineTo(item.x + 12, item.actualY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        const badgeText = `${item.org.icon} ${item.val}%`;
+        ctx.font = 'bold 12px "Outfit", sans-serif';
+        const textWidth = ctx.measureText(badgeText).width;
+        const badgeX = item.x + 10;
+        const badgeY = item.actualY - 10;
+        const badgeW = textWidth + 12;
+        const badgeH = 20;
+
+        // Background pill with subtle border
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 10);
+        ctx.fill();
+
+        ctx.strokeStyle = item.org.color;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // Draw Emoji & Text
+        ctx.fillStyle = item.val <= 0 ? '#DC2626' : item.org.color;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(badgeText, badgeX + 6, item.actualY);
+
+        ctx.restore();
+      });
+    }
+
+    /* Switch between Visual Habitat+Graph and Verification Results in Step 4 */
+    function switchObserveTab(mode) {
+      const visSection = document.getElementById('observeVisualSection');
+      const verSection = document.getElementById('observeVerifySection');
+      const btnVis = document.getElementById('obsTabBtn-visual');
+      const btnVer = document.getElementById('obsTabBtn-verify');
+      const btnAll = document.getElementById('obsTabBtn-all');
+
+      [btnVis, btnVer, btnAll].forEach(b => {
+        if (b) b.classList.remove('active');
+      });
+
+      if (mode === 'visual') {
+        if (visSection) visSection.style.display = 'flex';
+        if (verSection) verSection.style.display = 'none';
+        if (btnVis) btnVis.classList.add('active');
+        setTimeout(renderGraph, 50);
+      } else if (mode === 'verify') {
+        if (visSection) visSection.style.display = 'none';
+        if (verSection) verSection.style.display = 'block';
+        if (btnVer) btnVer.classList.add('active');
+      } else {
+        if (visSection) visSection.style.display = 'flex';
+        if (verSection) verSection.style.display = 'block';
+        if (btnAll) btnAll.classList.add('active');
+        setTimeout(renderGraph, 50);
+      }
+    }
+
+    /* Living Stage Organism Animation */
+    function renderHabitatStage() {
+      const stage = document.getElementById('habitatStage');
+      if (!stage) return;
+      stage.innerHTML = '';
+
+      const extinctOverlay = document.getElementById('extinctBannerOverlay');
+      if (state.extinctAnimals.size > 0) {
+        extinctOverlay.classList.add('active');
+        const names = Array.from(state.extinctAnimals).map(k => ORGANISMS[k].name).join(', ');
+        document.getElementById('extinctAnimalsText').innerText = `${names} is Extinct!`;
+      } else {
+        extinctOverlay.classList.remove('active');
+      }
+
+      Object.keys(ORGANISMS).forEach(k => {
+        const org = ORGANISMS[k];
+        const pop = state.currentPop[k];
+        const spriteCount = Math.min(7, Math.round((pop / 100) * 4));
+
+        for (let i = 0; i < spriteCount; i++) {
+          const sprite = document.createElement('div');
+          sprite.className = 'organism-sprite';
+          sprite.innerText = org.icon;
+          
+          let topPct, leftPct;
+          if (k === 'grass') {
+            topPct = 72 + (i * 3) % 20;
+            leftPct = 5 + (i * 12 + (k.charCodeAt(0) * 7)) % 90;
+          } else if (k === 'owl') {
+            topPct = 5 + (i * 10) % 30;
+            leftPct = 10 + (i * 22) % 80;
+          } else if (k === 'mice') {
+            topPct = 60 + (i * 8) % 25;
+            leftPct = 15 + (i * 15) % 75;
+          } else if (k === 'rabbit') {
+            topPct = 55 + (i * 8) % 25;
+            leftPct = 10 + (i * 14 + 18) % 80;
+          } else {
+            topPct = 35 + (i * 10) % 35;
+            leftPct = 8 + (i * 18 + (k.charCodeAt(0) * 5)) % 85;
+          }
+
+          sprite.style.top = `${topPct}%`;
+          sprite.style.left = `${leftPct}%`;
+          sprite.style.transform = `scale(${0.85 + (i % 3) * 0.15})`;
+
+          stage.appendChild(sprite);
+        }
+      });
+    }
+
+    /* Prediction Verification Table Generation */
+    function renderVerificationGrid() {
+      const grid = document.getElementById('verifyGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let correctCount = 0;
+      const otherKeys = Object.keys(ORGANISMS).filter(k => k !== state.chosenOrganism);
+
+      otherKeys.forEach(key => {
+        const org = ORGANISMS[key];
+        const studentPred = state.predictions[key] || 'same';
+        const startVal = state.history[key][0];
+        const endVal = state.currentPop[key];
+        const diff = endVal - startVal;
+
+        let actualDir = 'same';
+        if (diff > 8) actualDir = 'increase';
+        else if (diff < -8) actualDir = 'decrease';
+
+        const isCorrect = (studentPred === actualDir);
+        if (isCorrect) correctCount++;
+
+        const item = document.createElement('div');
+        item.className = `verify-item ${isCorrect ? 'matched' : 'missed'}`;
+
+        const predSymbol = studentPred === 'increase' ? '⬆️ Increase' : (studentPred === 'decrease' ? '⬇️ Decrease' : '➡️ Same');
+        const actualSymbol = actualDir === 'increase' ? `⬆️ Increased (+${diff}%)` : (actualDir === 'decrease' ? `⬇️ Decreased (${diff}%)` : `➡️ Stayed Same (${diff}%)`);
+
+        item.innerHTML = `
+          <div class="verify-info">
+            <span class="icon">${org.icon}</span>
+            <div class="verify-names">
+              <h4>${org.name}</h4>
+              <p>Predicted: <strong>${predSymbol}</strong></p>
+              <p>Actual: <strong>${actualSymbol}</strong></p>
+            </div>
+          </div>
+          <div class="verify-status-badge">
+            <span class="status-pill ${isCorrect ? 'status-correct' : 'status-wrong'}">
+              ${isCorrect ? '✅ Matched!' : '❌ Surprised!'}
+            </span>
+          </div>
+        `;
+
+        grid.appendChild(item);
+      });
+
+      const scorePill = document.getElementById('obsScorePill');
+      if (scorePill) scorePill.innerText = `Score: ${correctCount}/6`;
+
+      const bannerText = document.getElementById('scoreSummaryText');
+      if (correctCount >= 5) {
+        bannerText.innerText = `🌟 Fantastic! You got ${correctCount} out of 6 correct! Master Ecologist!`;
+      } else if (correctCount >= 3) {
+        bannerText.innerText = `👍 Good job! You got ${correctCount} out of 6 correct. In nature, living things are full of surprises!`;
+      } else {
+        bannerText.innerText = `🌱 Nature is full of complex connections! You got ${correctCount} out of 6 correct. Check Step 5 to reflect!`;
+      }
+    }
+
+    function speakScoreSummary() {
+      const text = document.getElementById('scoreSummaryText').innerText;
+      speakText(text);
+    }
+
+    /* =========================================================
+       9. STEP 5: EXPLAIN & REFLECT LOGIC (Sentence Builder & Export)
+       ========================================================= */
+    function updateBuiltSentence() {
+      const causeSubj = document.getElementById('causeSubject').value;
+      const causeAct = document.getElementById('causeAction').value;
+      const effectSubj = document.getElementById('effectSubject').value;
+      const effectAct = document.getElementById('effectAction').value;
+      const reason = document.getElementById('reasonSelect').value;
+
+      const sentence = `When the ${causeSubj} ${causeAct}, the ${effectSubj} ${effectAct} because ${reason}`;
+      document.getElementById('finalBuiltSentence').innerText = `"${sentence}"`;
+    }
+
+    function speakBuiltSentence() {
+      const text = document.getElementById('finalBuiltSentence').innerText.replace(/"/g, '');
+      speakText(text);
+    }
+
+    function addStarter(starter) {
+      const textarea = document.getElementById('reflectionText');
+      if (textarea.value.trim() === '') {
+        textarea.value = starter;
+      } else {
+        textarea.value += ' ' + starter;
+      }
+      textarea.focus();
+      speakText(starter);
+    }
+
+    /* Certificate / Report PNG Image Generator */
+    function exportReportImage() {
+      const canvas = document.getElementById('reportCanvas');
+      const ctx = canvas.getContext('2d');
+      const studentName = document.getElementById('studentNameInput').value.trim() || 'Young Ecologist';
+      const sentence = document.getElementById('finalBuiltSentence').innerText.replace(/"/g, '');
+      const reflection = document.getElementById('reflectionText').value.trim() || 'I learned that all living things in an ecosystem depend on each other.';
+
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, '#F0FDF4');
+      grad.addColorStop(0.5, '#FFFFFF');
+      grad.addColorStop(1, '#E0F2FE');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = '#2D6A4F';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      ctx.strokeStyle = '#52B788';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(32, 32, canvas.width - 64, canvas.height - 64);
+
+      ctx.fillStyle = '#2D6A4F';
+      ctx.font = 'bold 36px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🌱 ECOSYSTEM SCIENTIST REPORT 🦉🐇', canvas.width / 2, 95);
+
+      ctx.fillStyle = '#64748B';
+      ctx.font = '600 18px Quicksand, sans-serif';
+      ctx.fillText('What Happens If...? — Elementary Science & English', canvas.width / 2, 130);
+
+      // Student Name & Date Banner
+      ctx.fillStyle = '#D8F3DC';
+      ctx.beginPath();
+      ctx.roundRect(80, 160, canvas.width - 160, 60, 16);
+      ctx.fill();
+
+      ctx.fillStyle = '#1B4332';
+      ctx.font = 'bold 22px Outfit, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`Student: ${studentName}`, 110, 198);
+      
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      ctx.textAlign = 'right';
+      ctx.fillText(`Date: ${today}`, canvas.width - 110, 198);
+
+      // Section 1: Hypothesis
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#1B4332';
+      ctx.font = 'bold 22px Outfit, sans-serif';
+      ctx.fillText('1. My Ecosystem Hypothesis', 80, 265);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(80, 280, canvas.width - 160, 75, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#334155';
+      ctx.font = '600 17px Quicksand, sans-serif';
+      const hypoText = document.getElementById('hypothesisText').innerText;
+      wrapText(ctx, hypoText, 100, 315, canvas.width - 200, 24);
+
+      // Section 2: Experiment Results Table (7 organisms)
+      ctx.fillStyle = '#1B4332';
+      ctx.font = 'bold 22px Outfit, sans-serif';
+      ctx.fillText('2. Simulation Results & Observations', 80, 395);
+
+      let curY = 415;
+      Object.keys(ORGANISMS).forEach(k => {
+        const org = ORGANISMS[k];
+        const val = state.currentPop[k];
+        const start = state.history[k][0];
+        const diff = val - start;
+
+        ctx.fillStyle = '#F8FAFC';
+        ctx.beginPath();
+        ctx.roundRect(80, curY, canvas.width - 160, 40, 8);
+        ctx.fill();
+
+        ctx.fillStyle = '#1E293B';
+        ctx.font = 'bold 16px Outfit, sans-serif';
+        ctx.fillText(`${org.icon} ${org.name} (${org.role})`, 100, curY + 26);
+
+        ctx.textAlign = 'right';
+        ctx.font = '600 16px Quicksand, sans-serif';
+        if (val <= 0) {
+          ctx.fillStyle = '#DC2626';
+          ctx.fillText(`EXTINCT! ☠️ (0%)`, canvas.width - 100, curY + 26);
+        } else {
+          ctx.fillStyle = diff >= 0 ? '#15803D' : '#B91C1C';
+          ctx.fillText(`End: ${val}% (${diff >= 0 ? '+' : ''}${diff}%)`, canvas.width - 100, curY + 26);
+        }
+        ctx.textAlign = 'left';
+        curY += 46;
+      });
+
+      // Section 3: Scientific Explanation
+      ctx.fillStyle = '#1B4332';
+      ctx.font = 'bold 22px Outfit, sans-serif';
+      ctx.fillText('3. Scientific Explanation', 80, 785);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#52B788';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(80, 800, canvas.width - 160, 80, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#065F46';
+      ctx.font = 'bold 18px Quicksand, sans-serif';
+      wrapText(ctx, `"${sentence}"`, 105, 835, canvas.width - 210, 26);
+
+      // Section 4: What I Learned Today
+      ctx.fillStyle = '#1B4332';
+      ctx.font = 'bold 22px Outfit, sans-serif';
+      ctx.fillText('4. What I Learned Today', 80, 925);
+
+      ctx.fillStyle = '#F0F9FF';
+      ctx.strokeStyle = '#7DD3FC';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(80, 940, canvas.width - 160, 100, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#0369A1';
+      ctx.font = '600 17px Quicksand, sans-serif';
+      wrapText(ctx, reflection, 105, 975, canvas.width - 210, 24);
+
+      // Footer
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#64748B';
+      ctx.font = 'bold 15px Outfit, sans-serif';
+      ctx.fillText('🌟 Certified Young Ecologist • Antigravity Ecosystem Simulator 🌟', canvas.width / 2, 1140);
+
+      const link = document.createElement('a');
+      link.download = `Ecosystem_Report_${studentName.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+      showToast('Downloaded Science Report Image! 🖼️', '🎉');
+      speakText('Your science report image has been saved!');
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n] + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    function exportReportText() {
+      const studentName = document.getElementById('studentNameInput').value.trim() || 'Young Ecologist';
+      const hypoText = document.getElementById('hypothesisText').innerText;
+      const sentence = document.getElementById('finalBuiltSentence').innerText;
+      const reflection = document.getElementById('reflectionText').value.trim() || 'No additional reflection provided.';
+      const today = new Date().toLocaleDateString('en-US');
+
+      let txt = `========================================================\n`;
+      txt += `  WHAT HAPPENS IF...? — ECOSYSTEM SCIENCE REPORT\n`;
+      txt += `========================================================\n\n`;
+      txt += `Student Name: ${studentName}\n`;
+      txt += `Date: ${today}\n\n`;
+      txt += `--------------------------------------------------------\n`;
+      txt += `1. MY HYPOTHESIS:\n`;
+      txt += `   ${hypoText}\n\n`;
+      txt += `--------------------------------------------------------\n`;
+      txt += `2. SIMULATION RESULTS:\n`;
+      Object.keys(ORGANISMS).forEach(k => {
+        const org = ORGANISMS[k];
+        const end = state.currentPop[k];
+        const start = state.history[k][0];
+        txt += `   - ${org.name.padEnd(8)}: Started at ${start}%, Ended at ${end}% ${end === 0 ? '[EXTINCT!]' : ''}\n`;
+      });
+      txt += `\n--------------------------------------------------------\n`;
+      txt += `3. SCIENTIFIC EXPLANATION (CAUSE & EFFECT):\n`;
+      txt += `   ${sentence}\n\n`;
+      txt += `--------------------------------------------------------\n`;
+      txt += `4. WHAT I LEARNED TODAY:\n`;
+      txt += `   ${reflection}\n\n`;
+      txt += `========================================================\n`;
+      txt += `Antigravity Ecosystem Simulator - Grade 5-6 English Science`;
+
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.download = `Ecosystem_Report_${studentName.replace(/\s+/g, '_')}.txt`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+
+      showToast('Downloaded Text Report! 📄', '✨');
+      speakText('Your text report has been downloaded!');
+    }
+
+    function resetWholeProject() {
+      if (confirm('Start a new exploration from Step 1?')) {
+        state.chosenOrganism = 'grass';
+        state.changeAction = 'remove';
+        state.predictions = {};
+        resetSimulation();
+        goToStep(1);
+      }
+    }
+
+    /* =========================================================
+       10. INITIALIZATION ON PAGE LOAD
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      selectOrganism('grass');
+      renderPredictionRows();
+      updateHypothesisSentence();
+      window.addEventListener('resize', () => {
+        if (state.currentStep === 4) renderGraph();
+      });
+    });
+  </script>
+</body>
+</html>
